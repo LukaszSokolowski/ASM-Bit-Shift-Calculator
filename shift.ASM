@@ -7,34 +7,14 @@ ORG 100H
 
 
     start:
-            MOV AH, 9
-            MOV DX, info
-            INT 21H
-
-            MOV DX, ent1
-            INT 21H
-
-            MOV DX, info0
-            INT 21H
-
+            CALL in1
             CALL input
             CALL clear1
-
-            MOV AH, 9
-            MOV DX, info1
-            INT 21H
-
+            CALL in2
             CALL input
             CALL clear2
-
-            MOV AH, 9
-            MOV DX, ent1
-            INT 21H
-
-            MOV DX, info2
-            INT 21H
-
-            CALL operat      ;Wybierz operator
+            CALL operIN
+            CALL operat      ;Wybierz operator, opr = * lub opr = / lub opr = :
 
           
             ;Sprawdz czy spelniaja wymagania
@@ -74,7 +54,33 @@ liczba2  dw 0
 opr   db  0
 
 result dw 0
+;----------------------------First-input-------------------------
+in1:
+         MOV AH, 9
+            MOV DX, info
+            INT 21H
 
+            MOV DX, ent1
+            INT 21H
+
+            MOV DX, info0
+            INT 21H
+RET
+;---------------------------Second-input-------------------------
+in2:
+            MOV AH, 9
+            MOV DX, info1
+            INT 21H
+RET
+;--------------------------Operation-input------------------------
+operIN:
+            MOV AH, 9
+            MOV DX, ent1
+            INT 21H
+
+            MOV DX, info2
+            INT 21H
+RET
  ;------------------------Wczytanie-liczb--------------------------
 
  input:
@@ -135,29 +141,21 @@ result dw 0
   RET
 ;---------------------------CLEAR-temp-1----------------------------
   clear1:
-           ; POP AX      ;Zdejmij ze stosu adres powrotu procedury
-           ; MOV [adr_init], AX  ;Przenies adres powrotu do zmiennej
 
                 MOV  AX,        [temp]      ;Przenies do AX zmienna tymczasowa
                 MOV  [liczba1], AX      ;Przydziel wartosc zmiennej temp do zmiennej liczba1
                 XOR  AX,        AX      ;Wyczysc AX
                 MOV  [temp],    AX      ;Wyczysc temp
 
-           ; MOV  AX, [adr_init] ;Zaladuj do AX adres powrotu
-           ; PUSH AX     ;Wrzuc adres powrotu na stos
   RET
 ;---------------------------CLEAR-temp-2----------------------------  
   clear2:      
-           ; POP AX      ;Zrzuc adres procedury ze stosu
-           ; MOV [adr_init], AX  ;Przenies adres procedury do zmiennej
 
                 MOV  AX,        [temp]      ;Wartosc zmiennej tymczasowej do AX
                 MOV  [liczba2], AX      ;Zmienna liczba2 ma wartosc zmiennej tymczasowej
                 XOR  AX,        AX      ;Wyczysc AX
                 MOV  [temp],    AX      ;Wyczysc zmienna temp
 
-           ; MOV  AX, [adr_init] ;Przenies do AX wartosc adresu powrotu
-           ; PUSH AX     ;Wrzuc adres powrotu na stos
  RET
  ;------------------------------Bledy-wprowadzenia------------------------------------
  _error:
@@ -209,8 +207,6 @@ showRes:
 RET 
 ;-----------------------Wybor-operacji---------------------------------
 operat:
-    ;POP AX          ;Zrzuc adres powrotu do AX
-    ;MOV [adr_init], AX  ;Przenies adres do zmiennej
         
     MOV AH, 1       ;Czytaj znak z wejscia
     INT 21H         ;Przerwanie DOS
@@ -238,9 +234,6 @@ operat:
     XOR BX, BX          ;Wyczysc BX
     XOR AX, AX          ;Wyczysc AX
     XOR DX, DX          ;Wyczysc DX
-
-   ; MOV  AX, [adr_init] ;Zaladuj do AX adres powrotu
-    ;PUSH AX         ;Wrzuc na stos adres powrotu
 
 RET
 ;-----------------------------------------------------

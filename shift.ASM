@@ -71,6 +71,7 @@ mnoznik  dw 1
 temp   dw 0
 liczba1  dw 0
 liczba2  dw 0
+opr   db  0
 
 result dw 0
 
@@ -134,29 +135,29 @@ result dw 0
   RET
 ;---------------------------CLEAR-temp-1----------------------------
   clear1:
-            POP AX      ;Zdejmij ze stosu adres powrotu procedury
-            MOV [adr_init], AX  ;Przenies adres powrotu do zmiennej
+           ; POP AX      ;Zdejmij ze stosu adres powrotu procedury
+           ; MOV [adr_init], AX  ;Przenies adres powrotu do zmiennej
 
                 MOV  AX,        [temp]      ;Przenies do AX zmienna tymczasowa
                 MOV  [liczba1], AX      ;Przydziel wartosc zmiennej temp do zmiennej liczba1
                 XOR  AX,        AX      ;Wyczysc AX
                 MOV  [temp],    AX      ;Wyczysc temp
 
-            MOV  AX, [adr_init] ;Zaladuj do AX adres powrotu
-            PUSH AX     ;Wrzuc adres powrotu na stos
+           ; MOV  AX, [adr_init] ;Zaladuj do AX adres powrotu
+           ; PUSH AX     ;Wrzuc adres powrotu na stos
   RET
 ;---------------------------CLEAR-temp-2----------------------------  
   clear2:      
-            POP AX      ;Zrzuc adres procedury ze stosu
-            MOV [adr_init], AX  ;Przenies adres procedury do zmiennej
+           ; POP AX      ;Zrzuc adres procedury ze stosu
+           ; MOV [adr_init], AX  ;Przenies adres procedury do zmiennej
 
                 MOV  AX,        [temp]      ;Wartosc zmiennej tymczasowej do AX
                 MOV  [liczba2], AX      ;Zmienna liczba2 ma wartosc zmiennej tymczasowej
                 XOR  AX,        AX      ;Wyczysc AX
                 MOV  [temp],    AX      ;Wyczysc zmienna temp
 
-            MOV  AX, [adr_init] ;Przenies do AX wartosc adresu powrotu
-            PUSH AX     ;Wrzuc adres powrotu na stos
+           ; MOV  AX, [adr_init] ;Przenies do AX wartosc adresu powrotu
+           ; PUSH AX     ;Wrzuc adres powrotu na stos
  RET
  ;------------------------------Bledy-wprowadzenia------------------------------------
  _error:
@@ -208,20 +209,29 @@ showRes:
 RET 
 ;-----------------------Wybor-operacji---------------------------------
 operat:
-    POP AX          ;Zrzuc adres powrotu do AX
-    MOV [adr_init], AX  ;Przenies adres do zmiennej
+    ;POP AX          ;Zrzuc adres powrotu do AX
+    ;MOV [adr_init], AX  ;Przenies adres do zmiennej
         
     MOV AH, 1       ;Czytaj znak z wejscia
     INT 21H         ;Przerwanie DOS
 
-   ; CMP AL, '*'     ;Czy uzytkownik chce pomnozyc te liczby?
-    ;JE  _mul        ;Jesli tak to przejdz do etykiety mnozenia
+    CMP AL, '*'     ;Czy uzytkownik chce pomnozyc te liczby?
+    JE  _mul        ;Jesli tak to przejdz do etykiety mnozenia
 
-    ;CMP AL, '/'     ;Czy uzytkownik chce podzielic te liczby?
-    ;JE  _div        ;Jesli tak przejdz do etykiety dzielenia
+    CMP AL, '/'     ;Czy uzytkownik chce podzielic te liczby?
+    JE  _div        ;Jesli tak przejdz do etykiety dzielenia
         
-   ; CMP AL, ':'     ;Rowniez symbol dzielenia
-    ;JE  _div        ;Przejdz do dzielenia jesli rowne
+    CMP AL, ':'     ;Rowniez symbol dzielenia
+    JE  _div        ;Przejdz do dzielenia jesli rowne
+
+    JMP _error      ;Jesli znak spoza zakresu wyrzuc wyjatek
+
+    _mul:
+            MOV [opr], AL
+            JMP endOper
+
+    _div:
+            MOV [opr], AL
 
     endOper:    
 
@@ -229,8 +239,8 @@ operat:
     XOR AX, AX          ;Wyczysc AX
     XOR DX, DX          ;Wyczysc DX
 
-    MOV  AX, [adr_init] ;Zaladuj do AX adres powrotu
-    PUSH AX         ;Wrzuc na stos adres powrotu
+   ; MOV  AX, [adr_init] ;Zaladuj do AX adres powrotu
+    ;PUSH AX         ;Wrzuc na stos adres powrotu
 
 RET
 ;-----------------------------------------------------

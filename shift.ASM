@@ -5,21 +5,22 @@ ORG 100H
 ;a oraz b gdzie a to liczba dziesietna z zakresu 16 bit, b to liczba od 1 do 16
 ;przy dzieleniu a/b liczba b musi byc potęgą liczby 2
 
-
     start:
-            CALL in1
-            CALL input
-            CALL clear1
-            CALL in2
-            CALL input
-            CALL clear2
-            CALL operIN
-            CALL operat      ;Wybierz operator, opr = * lub opr = / lub opr = :
+            CALL hello
+    reset:
+            CALL inform1
+            CALL getNum
+            CALL set1
 
-          
-            ;Sprawdz czy spelniaja wymagania
-            ;Wykonaj operacje
+            CALL inform2
+            CALL getNum
+            CALL set2
 
+            CALL inform3
+            CALL getOper        ;Wybierz operator, opr = * lub opr = / lub opr = :
+            CALL checkNum          ;Sprawdz czy spelniaja wymagania
+                         
+            CALL doOperat       ;Wykonaj operacje
 
 
 
@@ -54,12 +55,15 @@ liczba2  dw 0
 opr   db  0
 
 result dw 0
-;----------------------------First-input-------------------------
-in1:
-         MOV AH, 9
+;-----------------------------Hello----------------------------
+hello:
+             MOV AH, 9
             MOV DX, info
             INT 21H
-
+RET
+;----------------------------First-input-------------------------
+inform1:
+      
             MOV DX, ent1
             INT 21H
 
@@ -67,13 +71,13 @@ in1:
             INT 21H
 RET
 ;---------------------------Second-input-------------------------
-in2:
+inform2:
             MOV AH, 9
             MOV DX, info1
             INT 21H
 RET
 ;--------------------------Operation-input------------------------
-operIN:
+inform3:
             MOV AH, 9
             MOV DX, ent1
             INT 21H
@@ -83,7 +87,7 @@ operIN:
 RET
  ;------------------------Wczytanie-liczb--------------------------
 
- input:
+ getNum:
         POP AX              ;Zrzuc adres powrotu
     MOV [adr_init], AX      ;Przenies adres do AX
     MOV CX, 0           ;Wyzeruj licznik
@@ -140,7 +144,7 @@ RET
         
   RET
 ;---------------------------CLEAR-temp-1----------------------------
-  clear1:
+  set1:
 
                 MOV  AX,        [temp]      ;Przenies do AX zmienna tymczasowa
                 MOV  [liczba1], AX      ;Przydziel wartosc zmiennej temp do zmiennej liczba1
@@ -149,7 +153,7 @@ RET
 
   RET
 ;---------------------------CLEAR-temp-2----------------------------  
-  clear2:      
+  set2:      
 
                 MOV  AX,        [temp]      ;Wartosc zmiennej tymczasowej do AX
                 MOV  [liczba2], AX      ;Zmienna liczba2 ma wartosc zmiennej tymczasowej
@@ -167,7 +171,7 @@ RET
         MOV  DX, info4      ;Przenies adres zmiennej info3
         INT 21H
 
-        JMP start           ;Bezwarunkowo przejdz do etykiety start 
+        JMP reset           ;Bezwarunkowo przejdz do etykiety start 
 
 ;--------------------------Wyswietl-wynik-----------------------------
 showRes:
@@ -206,7 +210,7 @@ showRes:
     PUSH AX
 RET 
 ;-----------------------Wybor-operacji---------------------------------
-operat:
+getOper:
         
     MOV AH, 1       ;Czytaj znak z wejscia
     INT 21H         ;Przerwanie DOS
@@ -237,3 +241,90 @@ operat:
 
 RET
 ;-----------------------------------------------------
+checkNum:
+        XOR AX, AX
+        MOV AL, [opr]
+
+        CMP AL, '*'
+        JE xMul
+
+        CMP AL, '/'
+        JE xDiv
+       
+        CMP AL, ':'
+        JE xDiv
+
+        xDiv:               ; Przy dzieleniu liczba2 to potega dwojki oraz z zakresu od 1 do 16
+
+            XOR AX, AX
+            MOV AX, [liczba2]
+
+            CMP AX, 1
+            JL  _error
+
+            CMP AX, 16
+            JG _error
+
+            CMP AX, 2
+            JE  endCheck
+
+            CMP AX, 4
+            JE  endCheck
+
+            CMP AX, 8
+            JE  endCheck
+
+            CMP AX, 16
+            JE  endCheck
+
+            JMP _error
+
+        xMul:               ;Przy mnozeniu to liczba2 od 1 do 16
+
+            XOR AX, AX
+            MOV AX, [liczba2]
+
+            CMP AX, 1
+            JL  _error
+
+            CMP AX, 16
+            JG _error
+
+            JMP endCheck
+
+    endCheck:
+
+RET
+;-------------------------Wykonaj-dzialania-----------------------
+doOperat:
+            XOR AX, AX
+            MOV AL, [opr]
+
+            CMP AL, '*'
+            JE multiply
+
+            CMP AL, '/'
+            JE divide
+
+            CMP AL, ':'
+            JE divide
+
+
+            divide:
+
+
+            JMP endProc
+
+
+
+
+            multiply:
+
+
+            JMP endProc
+
+
+endProc:
+
+RET
+;----------------------------------------------------------------

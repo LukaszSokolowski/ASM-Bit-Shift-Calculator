@@ -6,23 +6,23 @@ ORG 100H
 ;przy dzieleniu a/b liczba b musi byc potęgą liczby 2
 
     start:
-            CALL hello             ;Procedura wywolujaca powitanie
+            CALL hello           ;Procedura wywolujaca powitanie
     reset:  
             CALL inform1         ;Pokaz informacje dla uzytkownika
-            CALL getNum         ;Pobierz pierwsza liczbe
-            CALL set1             ;Ustaw zmienna dla pierwszej liczby
+            CALL getNum          ;Pobierz pierwsza liczbe
+            CALL set1            ;Ustaw zmienna dla pierwszej liczby
 
             CALL inform2         ;Informacja dla uzytkownika
-            CALL getNum         ;Pobierz druga liczbe
-            CALL set2             ;Ustaw druga liczbe
+            CALL getNum          ;Pobierz druga liczbe
+            CALL set2            ;Ustaw druga liczbe
 
-            CALL inform3        ;Informacja dla uzytkownika
-            CALL getOper            ;Wybierz operator, opr = * lub opr = / lub opr = :
-            CALL checkNum          ;Sprawdz czy spelniaja wymagania
+            CALL inform3         ;Informacja dla uzytkownika
+            CALL getOper         ;Wybierz operator, opr = * lub opr = / lub opr = :
+            CALL checkNum        ;Sprawdz czy spelniaja wymagania
                          
-            CALL doOperat       ;Wykonaj operacje zadana przez uzytkownika
+            CALL doOperat        ;Wykonaj operacje zadana przez uzytkownika
 
-            CALL showRes       ;Wyswietl wynik dzialania
+            CALL showRes         ;Wyswietl wynik dzialania
                 
 
 ;-----------------------Koniec-programu-------------------------         
@@ -40,49 +40,48 @@ info5 db "Wynik operacji to: $"
 ent1  db 10,13,36
 
 adr_init   dw 0
-st_count  db 0
-digit    dw 0
-mnoznik  dw 1
-temp   dw 0
-liczba1  dw 0
-liczba2  dw 0
-opr   db  0
-
-result dw 0
+st_count   db 0
+digit      dw 0
+mnoznik    dw 1
+temp       dw 0
+liczba1    dw 0
+liczba2    dw 0
+opr        db 0
+result     dw 0
 ;-----------------------------Hello----------------------------
 hello:
             MOV AH, 9          ;Kopiuj do rejestru AH wartosc odpowiadajaca funkcji wyswietlenia lancucha znakow
-            MOV DX, info        ;Przenies adres do DX
-            INT 21H              ;Przerwanie DOS 
+            MOV DX, info       ;Przenies adres do DX
+            INT 21H            ;Przerwanie DOS 
 RET
 ;----------------------------First-input-------------------------
 inform1:
             MOV DX, ent1      ;Przenies adres do DX
-            INT 21H             ;Przerwanie DOS
+            INT 21H           ;Przerwanie DOS
 
             MOV DX, info0     ;Przenies adres do DX
-            INT 21H             ;Przerwanie DOS
+            INT 21H           ;Przerwanie DOS
 RET
 ;---------------------------Second-input-------------------------
 inform2:
-            MOV AH, 9            ;Kopiuj do rejestru AH wartosc odpowiadajaca funkcji wyswietlenia lancucha znakow
+            MOV AH, 9           ;Kopiuj do rejestru AH wartosc odpowiadajaca funkcji wyswietlenia lancucha znakow
             MOV DX, info1       ;Przenies adres do DX
             INT 21H             ;Przerwanie DOS
 RET
 ;--------------------------Operation-input------------------------
 inform3:
             MOV AH, 9            ;Kopiuj do rejestru AH wartosc odpowiadajaca funkcji wyswietlenia lancucha znako
-            MOV DX, ent1        ;Przenies adres do DX
-            INT 21H                 ;Przerwanie DOS
+            MOV DX, ent1         ;Przenies adres do DX
+            INT 21H              ;Przerwanie DOS
 
-            MOV DX, info2       ;Przenies adres do DX
-            INT 21H               ;Wywolaj przerwanie DOS
+            MOV DX, info2        ;Przenies adres do DX
+            INT 21H              ;Wywolaj przerwanie DOS
 RET
  ;------------------------Wczytanie-liczb--------------------------
  getNum:
         POP AX              ;Zrzuc adres powrotu
     MOV [adr_init], AX      ;Przenies adres do AX
-    MOV CX, 0           ;Wyzeruj licznik
+    MOV CX, 0               ;Wyzeruj licznik
     
     pushloop:
             MOV AH, 1       ;Wczytanie znaku z wejscia
@@ -104,40 +103,40 @@ RET
             XOR  AH, AH     ;Wyzeruj gore rejestru AX
             PUSH AX         ;Wrzuc AX na stos
 
-            JMP pushloop        ;Kolejny krok petli
+            JMP pushloop    ;Kolejny krok petli
         
        poploop:
 
-            POP BX          ;Zdejm cyfre ze stosu
-            XOR BH, BH      ;Wyzeruj gore rejestru BX
+            POP BX              ;Zdejm cyfre ze stosu
+            XOR BH, BH          ;Wyzeruj gore rejestru BX
             MOV [digit], BX     ;Przenies cufre do zmiennej
         
-            XOR AX, AX      ;Wyzeruj AX 
+            XOR AX, AX          ;Wyzeruj AX 
             MOV AX, [mnoznik]   ;Przenies do AX wartosc mnoznika
-            MUL BX          ;Pomnoz AX razy BX wynik w DX:AX
+            MUL BX              ;Pomnoz AX razy BX wynik w DX:AX
         
             ADD [temp], AX      ;Dodaj do zmiennej tymczasowej kolejna wartosc
         
-            MOV BX, 10      ;Zaladuj rejestr BX wartoscia 10
-            XOR BH, BH      ;Wyzeruj gore BX
+            MOV BX, 10          ;Zaladuj rejestr BX wartoscia 10
+            XOR BH, BH          ;Wyzeruj gore BX
             MOV AX, [mnoznik]   ;Przenies do AX wartosc mnoznika
-            MUL BX          ;Z kazdym kolejnym zdjeciem ze stosu mnoznik wzrasta x 10 
+            MUL BX              ;Z kazdym kolejnym zdjeciem ze stosu mnoznik wzrasta x 10 
             MOV [mnoznik], AX   ;Przenies mnoznik do zmiennej 
     
             loop poploop        ;Wykonuj petle
 
                 MOV AX, [adr_init]      ;Przenies do AX adres powrotu procedury
-        PUSH AX             ;Wrzuc adres powrotu na stos
-        XOR AX, AX      ;Wyzeruj AX
-        MOV AX, 1       ;Przenies do AX wartosc poczatkowa mnoznika
-        MOV [mnoznik], AX   ;Do zmiennej mnoznik przenies jego wartosc poczatkowa
-        XOR AX, AX      ;Wyzeruj AX
-        XOR BX, BX      ;Wyzeruj BX
+        PUSH AX                         ;Wrzuc adres powrotu na stos
+        XOR AX, AX     		        ;Wyzeruj AX
+        MOV AX, 1       		;Przenies do AX wartosc poczatkowa mnoznika
+        MOV [mnoznik], AX 	 	;Do zmiennej mnoznik przenies jego wartosc poczatkowa
+        XOR AX, AX      		;Wyzeruj AX
+        XOR BX, BX      		;Wyzeruj BX
         
   RET
 ;---------------------------CLEAR-temp-1----------------------------
   set1:
-                MOV  AX,        [temp]      ;Przenies do AX zmienna tymczasowa
+                MOV  AX,        [temp]  ;Przenies do AX zmienna tymczasowa
                 MOV  [liczba1], AX      ;Przydziel wartosc zmiennej temp do zmiennej liczba1
                 XOR  AX,        AX      ;Wyczysc AX
                 MOV  [temp],    AX      ;Wyczysc temp
@@ -145,7 +144,7 @@ RET
   RET
 ;---------------------------CLEAR-temp-2----------------------------  
   set2:      
-                MOV  AX,        [temp]      ;Wartosc zmiennej tymczasowej do AX
+                MOV  AX,        [temp]  ;Wartosc zmiennej tymczasowej do AX
                 MOV  [liczba2], AX      ;Zmienna liczba2 ma wartosc zmiennej tymczasowej
                 XOR  AX,        AX      ;Wyczysc AX
                 MOV  [temp],    AX      ;Wyczysc zmienna temp
@@ -178,8 +177,8 @@ showRes:
     
              pushwyni:
                 XOR DX, DX  ;Wyzeruj DX
-                 DIV BX      ;Podziel AX przez BX
-                 PUSH DX     ;Wrzuc reszte
+                DIV BX      ;Podziel AX przez BX
+                PUSH DX     ;Wrzuc reszte
                 INC CX      ;Zwieksz licznik
                 CMP AX, 0   ;Porownaj czy licznik rowny 0
                 JA pushwyni ;Jesli wiekszy dziel dalej
@@ -225,7 +224,7 @@ getOper:
 
     _mul:
             MOV [opr], AL        ;Przenies do zmiennej wartosc rejestru AL
-            JMP endOper         ;Przeskocz bezwarunkowo do etykiety konca procedury
+            JMP endOper          ;Przeskocz bezwarunkowo do etykiety konca procedury
 
     _div:
             MOV [opr], AL       ;Przenies do zmiennej wartosc spod rejestru AL
@@ -239,40 +238,40 @@ getOper:
 RET
 ;-----------------------------------------------------
 checkNum:
-        XOR AX, AX           ;Wyczysc AX
-        MOV AL, [opr]        ;Kopiuj do AL wartosc zmiennej operatora
+        XOR AX, AX            ;Wyczysc AX
+        MOV AL, [opr]         ;Kopiuj do AL wartosc zmiennej operatora
 
         CMP AL, '*'           ;Porownaj ze znakiem mnozenia
         JE xMul               ;Jesli rowne to przejdz do etykiety xMul
 
-        CMP AL, '/'          ;Porownaj ze znakiem dzielenia
-        JE xDiv                ;Jesli rowne to przejdz do etykiety xDiv
+        CMP AL, '/'           ;Porownaj ze znakiem dzielenia
+        JE xDiv               ;Jesli rowne to przejdz do etykiety xDiv
        
         CMP AL, ':'           ;Porowmaj ze znakiem dzielenia
         JE xDiv               ;Jesli rowne to przejdz do etykiety xDiv
 
-        xDiv:               ; Przy dzieleniu liczba2 to potega dwojki oraz z zakresu od 1 do 16
+        xDiv:                 ;Przy dzieleniu liczba2 to potega dwojki oraz z zakresu od 1 do 16
 
-            XOR AX, AX              ;Wyczysc AX
-            MOV AX, [liczba2]         ;Przenies do AX wartosc drugiej wprowadzonej liczby
+            XOR AX, AX        ;Wyczysc AX
+            MOV AX, [liczba2] ;Przenies do AX wartosc drugiej wprowadzonej liczby
 
-            CMP AX, 1               ;Porownaj z wartoscia 1
-            JL  _error                  ;Jesli mniejsze to przejdz do etykiety bledu
+            CMP AX, 1         ;Porownaj z wartoscia 1
+            JL  _error        ;Jesli mniejsze to przejdz do etykiety bledu
 
-            CMP AX, 16              ;Porownaj z wartoscia 16 
-            JG _error               ;Jesli wieksze to przejdz do etykiety bledow
+            CMP AX, 16        ;Porownaj z wartoscia 16 
+            JG _error         ;Jesli wieksze to przejdz do etykiety bledow
 
-            CMP AX, 2               ;Porownaj z 2
-            JE  endCheck            ;Jesli rowne to wartosc dopuszczalna
+            CMP AX, 2         ;Porownaj z 2
+            JE  endCheck      ;Jesli rowne to wartosc dopuszczalna
 
-            CMP AX, 4               ;Porownaj z 4
-            JE  endCheck            ;Jesli rowne to wartosc dopuszczalna
+            CMP AX, 4         ;Porownaj z 4
+            JE  endCheck      ;Jesli rowne to wartosc dopuszczalna
 
-            CMP AX, 8               ;Porownaj z 8
-            JE  endCheck            ;Jesli rowne to wartosc dopuszczalna
+            CMP AX, 8         ;Porownaj z 8
+            JE  endCheck      ;Jesli rowne to wartosc dopuszczalna
 
-            CMP AX, 16              ;Porownaj z 16
-            JE  endCheck            ;Jesli rowne to wartosc dopuszczalna
+            CMP AX, 16        ;Porownaj z 16
+            JE  endCheck      ;Jesli rowne to wartosc dopuszczalna
 
             JMP _error
 
@@ -282,7 +281,7 @@ checkNum:
             MOV AX, [liczba2]       ;Przenies do AX, wartosc zmiennej liczba2
 
             CMP AX, 1               ;Porownaj z jedynka 
-            JL  _error                ;Jesli mniejsze to blad
+            JL  _error              ;Jesli mniejsze to blad
 
             CMP AX, 16              ;Porownaj z 16
             JG _error               ;Jesli mniejsze to przekracza zalozenia
@@ -350,7 +349,7 @@ doOperat:
                     MOV AX, [liczba1]       
                     MOV BX, [liczba2]    
 
-                     CMP BX, 1
+                    CMP BX, 1
                     JE shl1
 
                     CMP BX, 2
@@ -362,7 +361,7 @@ doOperat:
                     CMP BX, 4
                     JE shl4
 
-                     CMP BX, 5
+                    CMP BX, 5
                     JE shl5
 
                     CMP BX, 6
@@ -374,7 +373,7 @@ doOperat:
                     CMP BX, 8
                     JE shl8
 
-                     CMP BX, 9
+                    CMP BX, 9
                     JE shl9
 
                     CMP BX, 10
@@ -386,7 +385,7 @@ doOperat:
                     CMP BX, 12
                     JE shl12
 
-                      CMP BX, 13
+                    CMP BX, 13
                     JE shl13
 
                     CMP BX, 14
@@ -421,7 +420,7 @@ doOperat:
                             SHR AX, 2               
                             ADD [result], AX
                             JMP endProc
-                   shl6:
+                    shl6:
                             SHL AX, 2
                             MOV [result], AX
                             SHR AX, 1               
@@ -444,7 +443,7 @@ doOperat:
                             SHR AX, 3               
                             ADD [result], AX
                             JMP endProc
-                    shl10:
+                   shl10:
                             SHL AX, 3
                             MOV [result], AX
                             SHR AX, 2               
